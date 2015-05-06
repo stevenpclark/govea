@@ -1,0 +1,19 @@
+Goal
+	given a go game's board state, predict the next move using convolutional neural nets
+		board state includes location of previous move
+
+Data input
+	get python .sgf library?
+	write script to wget ugo .sgf archives, unzip into sgf directory
+		how many sgfs to get? start with 1 year's worth (TODO revisit)
+	write code to parse .sgf file, turn into internal game representation
+	write code to extract multiple <board_state, next_move> pairs from a game
+		can inflate volume of data using 8-way rotational symmetry
+	write script to extract NN input from all .sgfs in sgf directory
+
+NN representation - "one-hot"?
+	19*19*3 (empty/black/white layers, respectively)
+		plus 19*19 to track opponent's last move? (TODO revisit)
+			19*19*4 = 1444-dimensional input
+			each input is binary, but use float (0.0, 1.0)? for convenience with NN engine
+
