@@ -3,49 +3,23 @@ import re
 import logging
 from collections import defaultdict
 from datetime import datetime
+from govea import B, W, Move, Player
 
-B = -1
-empty = 0
-W = 1
-player_to_str = {B:'B', W:'W'} #TODO
-str_to_player = {'B':B, 'W':W}
 
-class Player(object):
-	def __init__(self, color, name=None, rank=None):
-		self.color = color
-		self.name = name
-		self.rank = rank
+def parse_coords(s):
+	#sgf coords are stored as xy chars whereas we store (row, col)
+	#e.g. convert s='ab' to (r=1, c=0)
+	#empty string means pass (return None in this case)
 
-	def __repr__(self):
-		return '%s: %s [%s]' % (player_to_str[self.color], self.name, self.rank)
-
-class Move(object):
-	def __init__(self, p, s):
-		#convert e.g. 'ab' to (r=0, c=1)
-		#empty string means pass
-
-		self.p = p
-		if s:
-			self.r = ord(s[0]) - 97 #97 is ord('a')
-			self.c = ord(s[1]) - 97
-			assert 0 <= self.r <= 19
-			assert 0 <= self.c <= 19
-			self.isPass = False
-		else:
-			#move is a pass.
-			self.r = None
-			self.c = None
-			self.isPass = True
-
-	def __repr__(self):
-		ps = player_to_str[self.p]
-		if self.isPass:
-			return '(%s: Pass)'%ps
-		else:
-			return '(%s: %d,%d)'%(ps, self.r, self.c)
-
-	def __eq__(self, other):
-		return self.p == other.p and self.r == other.r and self.c == other.c
+	if s:
+		r = ord(s[1]) - 97 #97 is ord('a')
+		c = ord(s[0]) - 97
+		assert 0 <= r <= 19
+		assert 0 <= c <= 19
+		return (r,c)
+	else:
+		#move is a pass.
+		return None
 		
 
 class SGF(object):
@@ -62,8 +36,10 @@ class SGF(object):
 		for prop, val in prop_val_pairs:
 			prop_dict[prop].append(val)
 			#keep moves interleaved in proper order
-			if prop == 'W' or prop == 'B':
-				self.moves.append(Move(str_to_player[prop], val))
+			if prop == 'W':
+				self.moves.append(Move(W, parse_coords(val)))
+			if prop == 'B':
+				self.moves.append(Move(B, parse_coords(val)))
 
 		#unpack vals of length 1
 		for prop, val in prop_dict.iteritems():
@@ -97,7 +73,10 @@ class SGF(object):
 			self.date = None
 		self.result = prop_dict.get('RE', None)
 		self.handicap = prop_dict.get('HA', 0)
-		
+
+
+	
+
 
 if __name__ == '__main__':
 	with open(path.join('sgf', 'Hutoshi4-kghin.sgf')) as f:

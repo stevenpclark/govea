@@ -2,7 +2,7 @@ from os import path
 import unittest
 from datetime import datetime
 
-from sgf import SGF, Move, W
+from sgf import SGF, Move, B, W, parse_coords
 
 class SGFTestCase(unittest.TestCase):
 	"""Tests for 'sgf.py'."""
@@ -30,7 +30,7 @@ class SGFTestCase(unittest.TestCase):
 
 			#test parsing of moves
 			self.assertTrue(len(sgf.moves) == 352)
-			self.assertTrue(sgf.moves[5] == Move(W, 'nc'))
+			self.assertTrue(sgf.moves[5] == Move(W, parse_coords('nc')))
 
 
 if __name__ == '__main__':
