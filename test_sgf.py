@@ -17,7 +17,7 @@ class SGFTestCase(unittest.TestCase):
 			#Namely: GM, FF, SZ, KM, PW, PB, WR, BR, DT, RE, HA
 			self.assertTrue(sgf.game_type == 1)
 			self.assertTrue(sgf.file_format == 4)
-			self.assertTrue(sgf.board_size == 19)
+			self.assertTrue(sgf.board_shape == (19,19))
 			self.assertTrue(sgf.komi == 6.5)
 			self.assertTrue(sgf.player_w.name == 'Hutoshi4')
 			self.assertTrue(sgf.player_b.name == 'kghin')

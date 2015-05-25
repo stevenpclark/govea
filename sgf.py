@@ -73,7 +73,13 @@ class SGF(object):
 		#GM, FF, SZ, KM, PW, PB, WR, BR, DT, RE, HA
 		self.game_type = int(prop_dict.get('GM'))
 		self.file_format = int(prop_dict.get('FF'))
-		self.board_size = int(prop_dict.get('SZ'))
+		#size can be 'n' or 'xsize:ysize'
+		try:
+			size = int(prop_dict.get('SZ'))
+			self.board_shape = (size, size)
+		except ValueError:
+			strs = prop_dict.get('SZ').split(':')
+			self.board_shape = (int(strs[1]), int(strs[0])) #store 
 		self.komi = float(prop_dict.get('KM'))
 
 		#sgf.player_w
