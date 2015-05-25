@@ -2,17 +2,22 @@ from os import path
 import re
 import logging
 from collections import defaultdict
+from datetime import datetime
 
 B = -1
 empty = 0
 W = 1
-player_to_str = {B:'B', W:'W'}
+player_to_str = {B:'B', W:'W'} #TODO
+str_to_player = {'B':B, 'W':W}
 
 class Player(object):
-	def __init__(self, color, name=None, rank_str=None):
+	def __init__(self, color, name=None, rank=None):
 		self.color = color
 		self.name = name
-		self.rank_str = rank_str
+		self.rank = rank
+
+	def __repr__(self):
+		return '%s: %s [%s]' % (player_to_str[self.color], self.name, self.rank)
 
 class Move(object):
 	def __init__(self, p, s):
@@ -38,17 +43,27 @@ class Move(object):
 			return '(%s: Pass)'%ps
 		else:
 			return '(%s: %d,%d)'%(ps, self.r, self.c)
+
+	def __eq__(self, other):
+		return self.p == other.p and self.r == other.r and self.c == other.c
 		
 
 class SGF(object):
-	#list of prop, val pairs
+	#FIXME currently discarding tree structure info!
+	#this will cause trouble for any games that have undos, etc.
+
+	#list of prop, val pairs:
 	pat = re.compile('([A-Z]{1,2})\[(.*?)(?<!\\\\)\]', re.DOTALL)
 
 	def __init__(self, s):
-		prop_val_pairs = re.findall(SGF.pat, s) #FIXME discarding tree structure info!
+		self.moves = []
+		prop_val_pairs = re.findall(SGF.pat, s)
 		prop_dict = defaultdict(list)
 		for prop, val in prop_val_pairs:
 			prop_dict[prop].append(val)
+			#keep moves interleaved in proper order
+			if prop == 'W' or prop == 'B':
+				self.moves.append(Move(str_to_player[prop], val))
 
 		#unpack vals of length 1
 		for prop, val in prop_dict.iteritems():
@@ -66,17 +81,16 @@ class SGF(object):
 		pb = prop_dict.get('PB', None)
 		wr = prop_dict.get('WR', None)
 		br = prop_dict.get('BR', None)
+		self.player_w = Player(W, name=pw, rank=wr)
+		self.player_b = Player(B, name=pb, rank=br)
 		
-		#self.file_format = prop_dict.get('PW', None)
-		#self.file_format = prop_dict.get('PB', None)
-		#self.file_format = prop_dict.get('WR', None)
-		#self.file_format = prop_dict.get('BR', None)
-
-		self.date = prop_dict.get('DT', None)
+		date_str = prop_dict.get('DT', None)
+		if date_str:
+			self.date = datetime.strptime('2013-01-11', '%Y-%m-%d').date()
+		else:
+			self.date = None
 		self.result = prop_dict.get('RE', None)
 		self.handicap = prop_dict.get('HA', 0)
-
-		#print(vars(self))
 		
 
 if __name__ == '__main__':
