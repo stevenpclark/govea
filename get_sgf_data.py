@@ -3,6 +3,8 @@ import requests
 import glob
 import subprocess
 
+#TODO credit http://www.u-go.net/gamerecords/
+
 my_dir = path.dirname(__file__)
 output_dir = path.join(my_dir, 'data', 'sgf')
 

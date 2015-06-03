@@ -1,4 +1,6 @@
 .DS_Store
+data/sgf/*.tar.bz2
+data/sgf/kgs*/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

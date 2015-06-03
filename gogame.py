@@ -13,6 +13,12 @@ class GoGame(object):
 		#iterate through sgf.moves, creating self.boardstates
 		#first boardstate is empty, or has handicap stones
 		self.board_shape = sgf.board_shape
+		self.handicap = sgf.handicap
+		self.komi = sgf.komi
+		self.player_w = sgf.player_w
+		self.player_b = sgf.player_b
+		self.date = sgf.date
+		self.result = sgf.result
 		#TODO copy more fields
 
 		if sgf.handicap == 0:
