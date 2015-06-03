@@ -1,7 +1,10 @@
 import numpy as np
 import unittest
-from gogame import BoardState, B, W
+from gogame import BoardState, B, W, GoGame
 from govea import Move
+import glob
+from os import path
+import random
 
 
 class GoGameTestCase(unittest.TestCase):
@@ -26,6 +29,26 @@ class GoGameTestCase(unittest.TestCase):
 		self.assertTrue(np.array_equal(state1.grid, grid2a))
 		state2 = BoardState(state1, Move(B, (3,2)))
 		self.assertTrue(np.array_equal(state2.grid, grid2b))
+
+	def test_many_sgfs(self):
+		from sgf import SGF
+		my_dir = path.dirname(__file__)
+		sgf_dir = path.join(my_dir, 'data', 'sgf')
+		paths = []
+		#get the ones in the base dir:
+		paths.extend(glob.glob(path.join(sgf_dir, '*.sgf')))
+		paths.extend(glob.glob(path.join(sgf_dir, '*', '*.sgf')))
+		print '%d sgfs found' % len(paths)
+		#random.shuffle(paths)
+		num_test_sgfs = 1000 #TODO parameterize
+		for p in paths[:num_test_sgfs]:
+			print 'loading %s' % p
+			with open(p, 'rb') as f:
+				s = f.read()
+				sgf = SGF(s)
+				game = GoGame(sgf)
+				print '%d moves' % len(sgf.moves)
+
 
 
 def parse_board(s):

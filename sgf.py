@@ -72,13 +72,13 @@ class SGF(object):
 		else:
 			self.date = None
 		self.result = prop_dict.get('RE', None)
-		self.handicap = prop_dict.get('HA', 0)
+		self.handicap = int(prop_dict.get('HA', 0))
 
 
 	
 
 
 if __name__ == '__main__':
-	with open(path.join('sgf', 'Hutoshi4-kghin.sgf')) as f:
+	with open(path.join('data', 'sgf', 'Hutoshi4-kghin.sgf')) as f:
 		s = f.read()
 		sgf = SGF(s)

@@ -11,11 +11,14 @@ from govea import B, W, opposite_color
 class GoGame(object):
 	def __init__(self, sgf):
 		#iterate through sgf.moves, creating self.boardstates
-		#first boardstate is empty
-		assert(sgf.handicap == 0) #TODO handle handicap games
+		#first boardstate is empty, or has handicap stones
 		self.board_shape = sgf.board_shape
+		#TODO copy more fields
 
-		initial_state = BoardState.empty_board(self.board_shape)
+		if sgf.handicap == 0:
+			initial_state = BoardState.empty_board(self.board_shape)
+		else:
+			initial_state = BoardState.handicap_board(self.board_shape, sgf.handicap)
 		self.states = [initial_state]
 		prev_state = initial_state
 		for m in sgf.moves:
@@ -72,6 +75,33 @@ class BoardState(object):
 	def empty_board(cls, shape):
 		return cls(None, None, shape=shape)
 
+	@classmethod
+	def handicap_board(cls, shape, handicap):
+		if handicap<2 or handicap>9:
+			raise ValueError('handicap of %d not supported'%handicap)
+		nr, nc = shape
+		cl, cm, cr = 3, nc/2, nc-4
+		rt, rm, rb = 3, nr/2, nr-4
+		board = cls(None, None, shape=shape)
+		
+		board.grid[rt,cr] = B
+		board.grid[rb,cl] = B
+		if handicap >= 3:
+			board.grid[rb,cr] = B
+		if handicap >= 4:
+			board.grid[rt,cl] = B
+		if handicap in [5,7,9]:
+			board.grid[rm,cm] = B
+		if handicap >= 6:
+			board.grid[rm,cl] = B
+			board.grid[rm,cr] = B
+		if handicap >= 8:
+			board.grid[rt,cm] = B
+			board.grid[rb,cm] = B
+
+		return board
+
+
 	def _create_neighbor_map(self, shape):
 		self.neighbor_map = np.ndarray(shape, dtype=list)
 		for r in range(shape[0]):
@@ -119,7 +149,7 @@ class BoardState(object):
 
 
 if __name__ == '__main__':
-	with open(path.join('sgf', 'Hutoshi4-kghin.sgf')) as f:
+	with open(path.join('data', 'sgf', 'Hutoshi4-kghin.sgf')) as f:
 		s = f.read()
 		sgf = SGF(s)
 		game = GoGame(sgf)

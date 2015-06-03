@@ -10,7 +10,7 @@ class SGFTestCase(unittest.TestCase):
 	def test_sgf_load(self):
 		"""Test ability to correctly load and parse important SGF info"""
 
-		with open(path.join('sgf', 'Hutoshi4-kghin.sgf')) as f:
+		with open(path.join('data', 'sgf', 'Hutoshi4-kghin.sgf')) as f:
 			s = f.read()
 			sgf = SGF(s)
 			#Test some header fields.
