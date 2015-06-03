@@ -7,7 +7,6 @@ my_dir = path.dirname(__file__)
 output_dir = path.join(my_dir, 'data', 'sgf')
 
 dl_urls = ['http://dl.u-go.net/gamerecords/KGS-2015_04-19-900-.tar.bz2']
-dl_urls = []
 
 if __name__ == '__main__':
 	#download all archive files
