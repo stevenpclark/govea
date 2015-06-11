@@ -82,7 +82,6 @@ class SGF(object):
 					prev_i = i
 			i += 1
 		self.max_variation_depth = max_variation_depth
-
 		
 		#GM, FF, SZ, KM, PW, PB, WR, BR, DT, RE, HA
 		base_props = self.base_node.props
@@ -139,21 +138,6 @@ class SGF(object):
 
 
 
-	def get_moves(self):
-		
-		moves = []
-		n = self.base_node
-		while True:
-			m = n.move
-			if m:
-				moves.append(m)
-			if n.children:
-				n = n.children[-1]
-			else:
-				break
-		return moves
-
-
 class Node(object):
 	def __init__(self, parent=None):
 		self.parent = parent
@@ -206,7 +190,6 @@ def parse_coords(s):
 if __name__ == '__main__':
 	fn = 'Hutoshi4-kghin.sgf'
 	#fn = 'variation_test.sgf'
-	#fn = 'variation_test2.sgf'
 	with open(path.join('data', 'sgf', fn)) as f:
 		sgf = SGF(f)
 		#print sgf.base_node
