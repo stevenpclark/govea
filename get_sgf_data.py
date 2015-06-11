@@ -8,13 +8,16 @@ import subprocess
 my_dir = path.dirname(__file__)
 output_dir = path.join(my_dir, 'data', 'sgf')
 
-dl_urls = ['http://dl.u-go.net/gamerecords/KGS-2015_04-19-900-.tar.bz2']
+dl_urls = [
+'http://dl.u-go.net/gamerecords/KGS-2015_04-19-900-.tar.bz2',
+'http://dl.u-go.net/gamerecords/KGS-2015_03-19-926-.tar.bz2']
 
 if __name__ == '__main__':
 	#download all archive files
 	#FIXME TODO Error handling
 	for url in dl_urls:
 		out_fn = path.join(output_dir, url.split('/')[-1])
+		print 'downloading %s...' % url
 		r = requests.get(url)
 		with open(out_fn, 'wb') as f:
 			f.write(r.content)

@@ -39,14 +39,13 @@ class GoGameTestCase(unittest.TestCase):
 		paths.extend(glob.glob(path.join(sgf_dir, '*.sgf')))
 		paths.extend(glob.glob(path.join(sgf_dir, '*', '*.sgf')))
 		random.shuffle(paths)
-		num_test_sgfs = 100 #TODO parameterize
+		num_test_sgfs = min(len(paths), 500)
 		print '%d sgfs found, randomly parsing %d of them' % (len(paths), num_test_sgfs)
 		for p in paths[:num_test_sgfs]:
 			#print 'loading %s' % p
 			with open(p, 'rb') as f:
-				s = f.read()
-				sgf = SGF(s)
-				game = GoGame(sgf)
+				sgf = SGF(f)
+				game = GoGame(sgf, debug=False)
 				#print '%d moves' % len(sgf.moves)
 
 

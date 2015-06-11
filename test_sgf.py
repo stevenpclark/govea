@@ -11,8 +11,7 @@ class SGFTestCase(unittest.TestCase):
 		"""Test ability to correctly load and parse important SGF info"""
 
 		with open(path.join('data', 'sgf', 'Hutoshi4-kghin.sgf')) as f:
-			s = f.read()
-			sgf = SGF(s)
+			sgf = SGF(f)
 			#Test some header fields.
 			#Namely: GM, FF, SZ, KM, PW, PB, WR, BR, DT, RE, HA
 			self.assertTrue(sgf.game_type == 1)
@@ -31,6 +30,7 @@ class SGFTestCase(unittest.TestCase):
 			#test parsing of moves
 			self.assertTrue(len(sgf.moves) == 352)
 			self.assertTrue(sgf.moves[5] == Move(W, parse_coords('nc')))
+
 
 
 if __name__ == '__main__':
