@@ -6,12 +6,14 @@ import time
 from govea import B, W, opposite_color
 
 
+GRID_DTYPE = np.int8
 
 
 class GoGame(object):
 	def __init__(self, sgf, debug=False):
 		#iterate through sgf.moves, creating self.boardstates
 		#first boardstate is empty, or has handicap stones
+		#move i gets applied to state i to produce state i+1
 		self.board_shape = sgf.board_shape
 		self.handicap = sgf.handicap
 		self.komi = sgf.komi
@@ -19,6 +21,7 @@ class GoGame(object):
 		self.player_b = sgf.player_b
 		self.date = sgf.date
 		self.result = sgf.result
+		self.moves = sgf.moves
 		#TODO copy more fields
 
 		initial_state = BoardState.empty_board(self.board_shape)
@@ -28,7 +31,7 @@ class GoGame(object):
 		self.states = [initial_state]
 		prev_state = initial_state
 		
-		for i, m in enumerate(sgf.moves):
+		for i, m in enumerate(self.moves):
 			if debug:
 				print "about to play move %d: %s" % (i, m)
 			try:
@@ -50,9 +53,11 @@ class GoGame(object):
 
 class BoardState(object):
 	def __init__(self, prev_state, move, shape=None):
+		#board state results from applying move to prev_state
+		self.incoming_move = move
 		if prev_state is None and move is None:
 			self.shape = shape
-			self.grid = np.zeros(shape, dtype=np.int8)
+			self.grid = np.zeros(shape, dtype=GRID_DTYPE)
 			self._create_neighbor_map(shape)
 			self.num_played_moves = 0
 		else:

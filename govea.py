@@ -1,5 +1,6 @@
 B = -1
 W = 1
+EMPTY = 0
 
 color_to_str = {B:'B', W:'W'}
 str_to_color = {'B':B, 'W':W}
@@ -38,3 +39,5 @@ class Move(object):
 
 	def __eq__(self, other):
 		return self.color == other.color and self.r == other.r and self.c == other.c
+
+
