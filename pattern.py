@@ -24,6 +24,7 @@ response = a numpy array of dim (numrows, numcols, 1)
 import numpy as np
 from govea import EMPTY, opposite_color
 
+#TODO rename to pattern.py?
 
 class NNPattern(object):
 	EMPTY_LAYER, ENEMY_LAYER, FRIENDLY_LAYER, LAST_MOVE_LAYER = range(4)
@@ -46,43 +47,54 @@ class NNPattern(object):
 	def __repr__(self):
 		return '\n'.join([repr(self.stimulus[:,:,0]), repr(self.stimulus[:,:,1]), repr(self.stimulus[:,:,2]), repr(self.stimulus[:,:,3]), repr(self.response)])
 
-	@classmethod
-	def get_single_pattern(cls, grid, prev_move, next_move):
-		#grid is the state after prev_move is applied, before next_move is applied
-		#look at next_move to figure out friendly/active color, and fill in response
-		#look at prev_move to fill in stimulus layer 3
-		#look at grid to fill in stimulus layers 0,1,2
-		#return a single pattern (no rotations/mirrors)
-		friendly_color = next_move.color
-		enemy_color = opposite_color(friendly_color)
-		shape = grid.shape
-		
-		stimulus = np.zeros((shape[0], shape[1], 4), dtype=np.int8) #TODO dtype? use bool instead?
-		stimulus[:,:,NNPattern.EMPTY_LAYER] = (grid == EMPTY)
-		stimulus[:,:,NNPattern.ENEMY_LAYER] = (grid == enemy_color)
-		stimulus[:,:,NNPattern.FRIENDLY_LAYER] = (grid == friendly_color)
+
+def get_single_pattern(grid, prev_move, next_move):
+	#grid is the state after prev_move is applied, before next_move is applied
+	#look at next_move to figure out friendly/active color, and fill in response
+	#look at prev_move to fill in stimulus layer 3
+	#look at grid to fill in stimulus layers 0,1,2
+	#return a single pattern (no rotations/mirrors)
+	friendly_color = next_move.color
+	enemy_color = opposite_color(friendly_color)
+	shape = grid.shape
+	
+	stimulus = np.zeros((shape[0], shape[1], 4), dtype=np.int8) #TODO dtype? use bool instead?
+	stimulus[:,:,NNPattern.EMPTY_LAYER] = (grid == EMPTY)
+	stimulus[:,:,NNPattern.ENEMY_LAYER] = (grid == enemy_color)
+	stimulus[:,:,NNPattern.FRIENDLY_LAYER] = (grid == friendly_color)
+	if (prev_move is not None) and (not prev_move.is_pass()):
 		stimulus[prev_move.r, prev_move.c, NNPattern.LAST_MOVE_LAYER] = 1
 
-		response = np.zeros(shape, dtype=np.int8)
-		response[next_move.r, next_move.c] = 1
+	response = np.zeros(shape, dtype=np.int8)
+	response[next_move.r, next_move.c] = 1
 
-		return cls(stimulus, response)
+	return NNPattern(stimulus, response)
 
-	@classmethod
-	def get_patterns(cls, grid, prev_move, next_move):
-		#return a list of all 8 rotation/mirror symmetric patterns
-		#TODO potential optimizations if lots of time spent here
+
+def get_patterns(grid, prev_move, next_move):
+	#return a list of all 8 rotation/mirror symmetric patterns
+	#TODO potential optimizations if lots of time spent here
+	
+	base_pattern = get_single_pattern(grid, prev_move, next_move)
+	mirrored_pattern = base_pattern.fliplr()
+	results = [base_pattern, mirrored_pattern]
+	for i in range(3):
+		base_pattern = base_pattern.rot90()
+		mirrored_pattern = mirrored_pattern.rot90()
+		results.append(base_pattern)
+		results.append(mirrored_pattern)
 		
-		base_pattern = cls.get_single_pattern(grid, prev_move, next_move)
-		mirrored_pattern = base_pattern.fliplr()
-		results = [base_pattern, mirrored_pattern]
-		for i in range(3):
-			base_pattern = base_pattern.rot90()
-			mirrored_pattern = mirrored_pattern.rot90()
-			results.append(base_pattern)
-			results.append(mirrored_pattern)
-			
-		return results
+	return results
+
+
+def get_all_game_patterns(game):
+	all_patterns = []
+	for i, next_move in enumerate(game.moves):
+		board_state = game.states[i]
+		move_patterns = get_patterns(board_state.grid, board_state.prev_move, next_move)
+		all_patterns.extend(move_patterns)
+	return all_patterns
+
 
 
 if __name__ == '__main__':
@@ -97,6 +109,10 @@ if __name__ == '__main__':
 		next_move = game.moves[5]
 		print next_move
 
-		pattern = NNPattern.get_patterns(board_state.grid, board_state.incoming_move, next_move)[0]
-		print pattern.stimulus[:,:,0]
+		pattern = get_patterns(board_state.grid, board_state.prev_move, next_move)[0]
+		#print pattern.stimulus[:,:,0]
 		print pattern.response
+		print game.states[6]
+
+		all_patterns = get_all_game_patterns(game)
+		print(len(all_patterns))

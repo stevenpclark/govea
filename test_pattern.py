@@ -1,8 +1,11 @@
+from os import path
 import unittest
 import numpy as np
-from pattern_extract import NNPattern
-from gogame import GRID_DTYPE
+import random
+from pattern import NNPattern, get_patterns, get_all_game_patterns
+from gogame import GRID_DTYPE, GoGame
 from govea import B, W, Move
+import glob
 
 
 class PatternExtractTestCase(unittest.TestCase):
@@ -13,7 +16,7 @@ class PatternExtractTestCase(unittest.TestCase):
 		prev_move = Move(W, (0, 1))
 		next_move = Move(B, (0, 2))
 
-		patterns = NNPattern.get_patterns(grid, prev_move, next_move)
+		patterns = get_patterns(grid, prev_move, next_move)
 
 		base_pattern = patterns[0]
 		mirrored_pattern = patterns[1]
@@ -82,6 +85,30 @@ class PatternExtractTestCase(unittest.TestCase):
 			 [0,0,0],
 			 [0,0,0]]))
 
+
+	def test_extract_game_patterns(self):
+		from sgf import SGF
+		my_dir = path.dirname(__file__)
+		sgf_dir = path.join(my_dir, 'data', 'sgf')
+		paths = []
+		#get the ones in the base dir:
+		paths.extend(glob.glob(path.join(sgf_dir, '*.sgf')))
+		paths.extend(glob.glob(path.join(sgf_dir, '*', '*.sgf')))
+		random.shuffle(paths)
+		num_test_sgfs = min(len(paths), 500)
+		print '%d sgfs found, randomly parsing %d of them' % (len(paths), num_test_sgfs)
+		all_patterns = []
+		for p in paths[:num_test_sgfs]:
+			#print 'loading %s' % p
+			with open(p, 'rb') as f:
+				sgf = SGF(f)
+				game = GoGame(sgf, debug=False)
+				assert(len(game.moves)+1 == len(game.states))
+				game_patterns = get_all_game_patterns(game)
+				assert(len(game_patterns) == 8*len(game.moves))
+				all_patterns.extend(game_patterns)
+
+		print len(all_patterns)
 
 
 

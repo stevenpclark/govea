@@ -46,6 +46,7 @@ class GoGameTestCase(unittest.TestCase):
 			with open(p, 'rb') as f:
 				sgf = SGF(f)
 				game = GoGame(sgf, debug=False)
+				assert(len(game.moves)+1 == len(game.states))
 				#print '%d moves' % len(sgf.moves)
 
 

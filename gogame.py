@@ -14,6 +14,7 @@ class GoGame(object):
 		#iterate through sgf.moves, creating self.boardstates
 		#first boardstate is empty, or has handicap stones
 		#move i gets applied to state i to produce state i+1
+		#so if we have m moves, we have m+1 states
 		self.board_shape = sgf.board_shape
 		self.handicap = sgf.handicap
 		self.komi = sgf.komi
@@ -32,7 +33,7 @@ class GoGame(object):
 		prev_state = initial_state
 		
 		for i, m in enumerate(self.moves):
-			if debug:
+			if debug: #FIXME
 				print "about to play move %d: %s" % (i, m)
 			try:
 				state = BoardState(prev_state, m)
@@ -54,7 +55,7 @@ class GoGame(object):
 class BoardState(object):
 	def __init__(self, prev_state, move, shape=None):
 		#board state results from applying move to prev_state
-		self.incoming_move = move
+		self.prev_move = move
 		if prev_state is None and move is None:
 			self.shape = shape
 			self.grid = np.zeros(shape, dtype=GRID_DTYPE)
@@ -157,3 +158,4 @@ if __name__ == '__main__':
 	with open(path.join('data', 'sgf', 'Hutoshi4-kghin.sgf')) as f:
 		sgf = SGF(f)
 		game = GoGame(sgf)
+
