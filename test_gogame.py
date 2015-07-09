@@ -5,6 +5,7 @@ from govea import Move
 import glob
 from os import path
 import random
+from utils import get_sgf_paths
 
 
 class GoGameTestCase(unittest.TestCase):
@@ -32,12 +33,7 @@ class GoGameTestCase(unittest.TestCase):
 
 	def test_many_sgfs(self):
 		from sgf import SGF
-		my_dir = path.dirname(__file__)
-		sgf_dir = path.join(my_dir, 'data', 'sgf')
-		paths = []
-		#get the ones in the base dir:
-		paths.extend(glob.glob(path.join(sgf_dir, '*.sgf')))
-		paths.extend(glob.glob(path.join(sgf_dir, '*', '*.sgf')))
+		paths = get_sgf_paths()
 		random.shuffle(paths)
 		num_test_sgfs = min(len(paths), 500)
 		print '%d sgfs found, randomly parsing %d of them' % (len(paths), num_test_sgfs)

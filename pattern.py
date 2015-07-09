@@ -1,6 +1,6 @@
 """a pattern is essentially an (stimulus, response) tuple.
 using a 'one-hot' representation for our neural net.
-stimulus = a numpy array of dim (numrows, numcols, 4)
+stimulus = a numpy array of dim (4, numrows, numcols)
 	4 planes:
 		0: empty
 		1: enemy color
@@ -24,7 +24,6 @@ response = a numpy array of dim (numrows, numcols, 1)
 import numpy as np
 from govea import EMPTY, opposite_color
 
-#TODO rename to pattern.py?
 
 class NNPattern(object):
 	EMPTY_LAYER, ENEMY_LAYER, FRIENDLY_LAYER, LAST_MOVE_LAYER = range(4)
@@ -35,17 +34,28 @@ class NNPattern(object):
 
 	def fliplr(self):
 		#return a left-right mirrored copy of the pattern
-		return NNPattern(np.fliplr(self.stimulus), np.fliplr(self.response))
+		new_stimulus = np.zeros(self.stimulus.shape, dtype=np.int8)
+		new_stimulus[0,:,:] = np.fliplr(self.stimulus[0,:,:])
+		new_stimulus[1,:,:] = np.fliplr(self.stimulus[1,:,:])
+		new_stimulus[2,:,:] = np.fliplr(self.stimulus[2,:,:])
+		new_stimulus[3,:,:] = np.fliplr(self.stimulus[3,:,:])
+		return NNPattern(new_stimulus, np.fliplr(self.response))
 
 	def rot90(self):
 		#return a rotated CCW 90 copy of the pattern
-		return NNPattern(np.rot90(self.stimulus), np.rot90(self.response))
+		new_stimulus = np.zeros(self.stimulus.shape, dtype=np.int8)
+		new_stimulus[0,:,:] = np.rot90(self.stimulus[0,:,:])
+		new_stimulus[1,:,:] = np.rot90(self.stimulus[1,:,:])
+		new_stimulus[2,:,:] = np.rot90(self.stimulus[2,:,:])
+		new_stimulus[3,:,:] = np.rot90(self.stimulus[3,:,:])
+
+		return NNPattern(new_stimulus, np.rot90(self.response))
 
 	def __eq__(self, other):
 		return (self.stimulus==other.stimulus) and (self.response==other.response)
 
 	def __repr__(self):
-		return '\n'.join([repr(self.stimulus[:,:,0]), repr(self.stimulus[:,:,1]), repr(self.stimulus[:,:,2]), repr(self.stimulus[:,:,3]), repr(self.response)])
+		return '\n'.join([self.stimulus, self.response])
 
 
 def get_single_pattern(grid, prev_move, next_move):
@@ -58,12 +68,12 @@ def get_single_pattern(grid, prev_move, next_move):
 	enemy_color = opposite_color(friendly_color)
 	shape = grid.shape
 	
-	stimulus = np.zeros((shape[0], shape[1], 4), dtype=np.int8) #TODO dtype? use bool instead?
-	stimulus[:,:,NNPattern.EMPTY_LAYER] = (grid == EMPTY)
-	stimulus[:,:,NNPattern.ENEMY_LAYER] = (grid == enemy_color)
-	stimulus[:,:,NNPattern.FRIENDLY_LAYER] = (grid == friendly_color)
+	stimulus = np.zeros((4, shape[0], shape[1]), dtype=np.int8) #TODO dtype? use bool instead?
+	stimulus[NNPattern.EMPTY_LAYER,:,:] = (grid == EMPTY)
+	stimulus[NNPattern.ENEMY_LAYER,:,:]= (grid == enemy_color)
+	stimulus[NNPattern.FRIENDLY_LAYER,:,:]= (grid == friendly_color)
 	if (prev_move is not None) and (not prev_move.is_pass()):
-		stimulus[prev_move.r, prev_move.c, NNPattern.LAST_MOVE_LAYER] = 1
+		stimulus[NNPattern.LAST_MOVE_LAYER, prev_move.r, prev_move.c] = 1
 
 	response = np.zeros(shape, dtype=np.int8)
 	response[next_move.r, next_move.c] = 1
@@ -110,7 +120,6 @@ if __name__ == '__main__':
 		print next_move
 
 		pattern = get_patterns(board_state.grid, board_state.prev_move, next_move)[0]
-		#print pattern.stimulus[:,:,0]
 		print pattern.response
 		print game.states[6]
 

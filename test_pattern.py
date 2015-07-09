@@ -6,6 +6,7 @@ from pattern import NNPattern, get_patterns, get_all_game_patterns
 from gogame import GRID_DTYPE, GoGame
 from govea import B, W, Move
 import glob
+from utils import get_sgf_paths
 
 
 class PatternExtractTestCase(unittest.TestCase):
@@ -22,19 +23,19 @@ class PatternExtractTestCase(unittest.TestCase):
 		mirrored_pattern = patterns[1]
 		rotated_pattern = patterns[2]
 
-		assert(np.array_equal(base_pattern.stimulus[:,:,NNPattern.EMPTY_LAYER],
+		assert(np.array_equal(base_pattern.stimulus[NNPattern.EMPTY_LAYER,:,:],
 			[[0,0,1],
 			 [1,0,1],
 			 [1,0,1]]))
-		assert(np.array_equal(base_pattern.stimulus[:,:,NNPattern.ENEMY_LAYER],
+		assert(np.array_equal(base_pattern.stimulus[NNPattern.ENEMY_LAYER,:,:],
 			[[0,1,0],
 			 [0,0,0],
 			 [0,1,0]]))
-		assert(np.array_equal(base_pattern.stimulus[:,:,NNPattern.FRIENDLY_LAYER],
+		assert(np.array_equal(base_pattern.stimulus[NNPattern.FRIENDLY_LAYER,:,:],
 			[[1,0,0],
 			 [0,1,0],
 			 [0,0,0]]))
-		assert(np.array_equal(base_pattern.stimulus[:,:,NNPattern.LAST_MOVE_LAYER],
+		assert(np.array_equal(base_pattern.stimulus[NNPattern.LAST_MOVE_LAYER,:,:],
 			[[0,1,0],
 			 [0,0,0],
 			 [0,0,0]]))
@@ -43,19 +44,19 @@ class PatternExtractTestCase(unittest.TestCase):
 			 [0,0,0],
 			 [0,0,0]]))
 
-		assert(np.array_equal(mirrored_pattern.stimulus[:,:,NNPattern.EMPTY_LAYER],
+		assert(np.array_equal(mirrored_pattern.stimulus[NNPattern.EMPTY_LAYER,:,:],
 			[[1,0,0],
 			 [1,0,1],
 			 [1,0,1]]))
-		assert(np.array_equal(mirrored_pattern.stimulus[:,:,NNPattern.ENEMY_LAYER],
+		assert(np.array_equal(mirrored_pattern.stimulus[NNPattern.ENEMY_LAYER,:,:],
 			[[0,1,0],
 			 [0,0,0],
 			 [0,1,0]]))
-		assert(np.array_equal(mirrored_pattern.stimulus[:,:,NNPattern.FRIENDLY_LAYER],
+		assert(np.array_equal(mirrored_pattern.stimulus[NNPattern.FRIENDLY_LAYER,:,:],
 			[[0,0,1],
 			 [0,1,0],
 			 [0,0,0]]))
-		assert(np.array_equal(mirrored_pattern.stimulus[:,:,NNPattern.LAST_MOVE_LAYER],
+		assert(np.array_equal(mirrored_pattern.stimulus[NNPattern.LAST_MOVE_LAYER,:,:],
 			[[0,1,0],
 			 [0,0,0],
 			 [0,0,0]]))
@@ -64,19 +65,19 @@ class PatternExtractTestCase(unittest.TestCase):
 			 [0,0,0],
 			 [0,0,0]]))
 
-		assert(np.array_equal(rotated_pattern.stimulus[:,:,NNPattern.EMPTY_LAYER],
+		assert(np.array_equal(rotated_pattern.stimulus[NNPattern.EMPTY_LAYER,:,:],
 			[[1,1,1],
 			 [0,0,0],
 			 [0,1,1]]))
-		assert(np.array_equal(rotated_pattern.stimulus[:,:,NNPattern.ENEMY_LAYER],
+		assert(np.array_equal(rotated_pattern.stimulus[NNPattern.ENEMY_LAYER,:,:],
 			[[0,0,0],
 			 [1,0,1],
 			 [0,0,0]]))
-		assert(np.array_equal(rotated_pattern.stimulus[:,:,NNPattern.FRIENDLY_LAYER],
+		assert(np.array_equal(rotated_pattern.stimulus[NNPattern.FRIENDLY_LAYER,:,:],
 			[[0,0,0],
 			 [0,1,0],
 			 [1,0,0]]))
-		assert(np.array_equal(rotated_pattern.stimulus[:,:,NNPattern.LAST_MOVE_LAYER],
+		assert(np.array_equal(rotated_pattern.stimulus[NNPattern.LAST_MOVE_LAYER,:,:],
 			[[0,0,0],
 			 [1,0,0],
 			 [0,0,0]]))
@@ -88,14 +89,9 @@ class PatternExtractTestCase(unittest.TestCase):
 
 	def test_extract_game_patterns(self):
 		from sgf import SGF
-		my_dir = path.dirname(__file__)
-		sgf_dir = path.join(my_dir, 'data', 'sgf')
-		paths = []
-		#get the ones in the base dir:
-		paths.extend(glob.glob(path.join(sgf_dir, '*.sgf')))
-		paths.extend(glob.glob(path.join(sgf_dir, '*', '*.sgf')))
+		paths = get_sgf_paths()
 		random.shuffle(paths)
-		num_test_sgfs = min(len(paths), 500)
+		num_test_sgfs = min(len(paths), 50)
 		print '%d sgfs found, randomly parsing %d of them' % (len(paths), num_test_sgfs)
 		all_patterns = []
 		for p in paths[:num_test_sgfs]:
