@@ -4,9 +4,13 @@ from sgf import SGF
 from gogame import GoGame
 
 def is_acceptable_sgf(sgf):
-	return True # FIXME
+	if sgf.handicap > 2:
+		return False
+	if sgf.player_b.rank_num < 5 or sgf.player_w.rank_num < 5:
+		return False
+	return True
 
-def extract_patterns(max_num_patterns=1e9):
+def extract_patterns(max_num_patterns=1e9, exploit_symmetry=True):
 	sgf_paths = get_sgf_paths()
 	print '%d sgf files detected' % len(sgf_paths)
 	
@@ -21,7 +25,7 @@ def extract_patterns(max_num_patterns=1e9):
 			continue
 		game = GoGame(sgf)
 		num_games_parsed += 1
-		patterns.extend(pattern.get_all_game_patterns(game))
+		patterns.extend(pattern.get_all_game_patterns(game, exploit_symmetry=exploit_symmetry))
 		if len(patterns) >= max_num_patterns:
 			break
 	patterns = patterns[:max_num_patterns]
