@@ -101,8 +101,8 @@ class SGF(object):
 		pb = base_props.get('PB', None)
 		wr = base_props.get('WR', None)
 		br = base_props.get('BR', None)
-		self.player_w = Player(W, name=pw, rank=wr)
-		self.player_b = Player(B, name=pb, rank=br)
+		self.player_w = Player(W, name=pw, rank_str=wr)
+		self.player_b = Player(B, name=pb, rank_str=br)
 		
 		date_str = base_props.get('DT', None)
 		if date_str:
