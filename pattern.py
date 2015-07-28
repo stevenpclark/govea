@@ -97,12 +97,15 @@ def get_patterns(grid, prev_move, next_move):
 	return results
 
 
-def get_all_game_patterns(game):
+def get_all_game_patterns(game, exploit_symmetry=True):
 	all_patterns = []
 	for i, next_move in enumerate(game.moves):
 		board_state = game.states[i]
-		move_patterns = get_patterns(board_state.grid, board_state.prev_move, next_move)
-		all_patterns.extend(move_patterns)
+		if exploit_symmetry:
+			move_patterns = get_patterns(board_state.grid, board_state.prev_move, next_move)
+			all_patterns.extend(move_patterns)
+		else:
+			all_patterns.append(get_single_pattern(board_state.grid, board_state.prev_move, next_move))
 	return all_patterns
 
 
